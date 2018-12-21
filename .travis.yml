@@ -1,0 +1,11 @@
+sudo: required
+
+before_install:
+- sudo apt-get -qq update 
+- sudo apt install -y g++ flex bison libboost-all-dev
+
+install:
+- make
+
+script:
+- make test
