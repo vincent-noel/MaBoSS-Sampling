@@ -3,7 +3,6 @@
 #include <fstream>		// std::cout
 #include <algorithm>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 #include <string.h>
 #include <map>
 
@@ -23,16 +22,34 @@ static int usage(std::ostream& os = std::cerr)
   return 1;
 }
 
+std::vector<std::string> split(std::string& s) 
+{
+   std::vector<std::string> tokens;
+   std::string token;
+   std::istringstream tokenStream(s);
+   while (std::getline(tokenStream, token, ','))
+   {
+      tokens.push_back(token);
+   }
+   return tokens;
+}
+
+std::string trim(std::string& s)
+{
+    size_t first = s.find_first_not_of(' ');
+    size_t last = s.find_last_not_of(' ');
+    return s.substr(first, (last-first+1));
+}
+
 std::vector<double> readValues(const char *str)
 {
     std::vector<std::string> str_values;
-	boost::algorithm::split(str_values, str, boost::is_any_of(","));
+	std::string string_str(str);
+	str_values = split(string_str);
 
 	std::vector<double> values;
-	for (auto& str_value:str_values) {
-		boost::algorithm::trim(str_value);
-		values.push_back(std::stod(str_value));
-	}
+	for (auto& str_value:str_values)
+		values.push_back(std::stod(trim(str_value)));
 
     return values;
 }
@@ -40,27 +57,26 @@ std::vector<double> readValues(const char *str)
 std::vector<std::string> readParameters(const char *str)
 {
     std::vector<std::string> names;
-	boost::algorithm::split(names, str, boost::is_any_of(","));
+	std::string string_str(str);
+	names = split(string_str);
 
-	for (auto& name : names){
-		boost::algorithm::trim(name);
-	}
+	for (auto& name : names)
+		name = trim(name);
+	
     return names;
 }
 
-std::map<std::string, std::vector<double>> readParametersCSV(const char * ranges_filename) {
-
+std::map<std::string, std::vector<double>> readParametersCSV(const char * ranges_filename) 
+{
 	std::map<std::string, std::vector<double>> ranges;
 
 	std::ifstream ranges_file;
 	ranges_file.open(ranges_filename);
 
 	std::string line = "";
-	// Iterate through each line and split the content using delimeter
 	while (getline(ranges_file, line))
 	{
-		std::vector<std::string> vec;
-		boost::algorithm::split(vec, line, boost::is_any_of(","));
+		std::vector<std::string> vec = split(line);
 		std::string param_name = vec[0];
 		std::vector<double> range;
 		for(int i=1; i <vec.size(); i++) {
@@ -69,7 +85,6 @@ std::map<std::string, std::vector<double>> readParametersCSV(const char * ranges
 		ranges[param_name] = range;
 	}
 
-	// Close the File
 	ranges_file.close();
 
 	return ranges;	
@@ -198,7 +213,7 @@ int main(int argc, const char * argv[])
 			return 1;
 		}
 
-}
+	}
 	else return usage();
 }
 
