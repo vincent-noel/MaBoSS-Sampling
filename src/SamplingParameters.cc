@@ -55,7 +55,7 @@ void SamplingParameters::displayHeader() {
 
 }
 
-void SamplingParameters::displayFinalStates(std::map<std::string, double> parameter_set, int parameter_set_id, STATE_MAP<NetworkState_Impl, double> results) {
+void SamplingParameters::displayFinalStates(std::map<std::string, double> parameter_set, int parameter_set_id, const STATE_MAP<NetworkState_Impl, double> results) {
 
 	const std::vector<Node*>& nodes = network->getNodes();
 	int i = 0;
@@ -150,7 +150,7 @@ int SamplingParameters::run()
 		// simulateParameterSet(network_file, config_file, *it, i, output);
 		PSetSimulation * pset_simulation = new PSetSimulation(network_file, config_file, *it);
 		pset_simulation->run();
-		STATE_MAP<NetworkState_Impl, double> results = pset_simulation->getLastStateDist();
+		const STATE_MAP<NetworkState_Impl, double> results = pset_simulation->getLastStateDist();
 		displayFinalStates(*it, i, results);
 
 		i++;
