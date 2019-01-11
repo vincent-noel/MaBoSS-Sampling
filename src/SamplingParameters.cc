@@ -36,12 +36,16 @@
 
 void SamplingParameters::displayHeader() {
 	
-	output << "ParameterSet Id\tSteady state\tValue\t";
+	output << "ParameterSet Id\t";
 
 	const std::vector<Node*>& nodes = network->getNodes();
 
 	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
 		output << (*it)->getLabel() << "\t";
+	}
+
+	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
+		output << "max(" << (*it)->getLabel() << ")\t";
 	}
 
 	for (std::vector<std::string>::const_iterator it = param_names.begin(); it != param_names.end(); it++) {
@@ -55,32 +59,27 @@ void SamplingParameters::displayHeader() {
 
 }
 
-void SamplingParameters::displayFinalStates(std::map<std::string, double> parameter_set, int parameter_set_id, const STATE_MAP<NetworkState_Impl, double> results) {
+void SamplingParameters::displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results) {
 
 	const std::vector<Node*>& nodes = network->getNodes();
-	int i = 0;
+
+	output << parameter_set_id << "\t";
 
 	for (auto const& result : results)
-	{
-		NetworkState state = result.first;
-		double value = result.second;
-		output << parameter_set_id << "\t" << i << "\t" << std::setprecision(3) << value << "\t";
-
-		for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
-			output << state.getNodeState(*it) << "\t";
-		}
-
-		for (std::map<std::string, double>::const_iterator it = parameter_set.begin(); it != parameter_set.end(); it++) {
-			output << it->second;
-
-			if (std::next(it) != parameter_set.end()) {
-				output << "\t";
-			}
-		}
-		output << std::endl;
+		output << result.second << "\t";
+	
+	for (auto const& max_result : max_results)
+		output << max_result.second << "\t";
 		
-		i++;
+	for (std::map<std::string, double>::const_iterator it = parameter_set.begin(); it != parameter_set.end(); it++) {
+		output << it->second;
+
+		if (std::next(it) != parameter_set.end()) {
+			output << "\t";
+		}
 	}
+
+	output << std::endl;
 } 
 
 std::vector<std::map<std::string, double>> SamplingParameters::generateCombinations(std::map<std::string, std::vector<double>> param_ranges) {
@@ -150,8 +149,11 @@ int SamplingParameters::run()
 		// simulateParameterSet(network_file, config_file, *it, i, output);
 		PSetSimulation * pset_simulation = new PSetSimulation(network_file, config_file, *it);
 		pset_simulation->run();
-		const STATE_MAP<NetworkState_Impl, double> results = pset_simulation->getLastStateDist();
-		displayFinalStates(*it, i, results);
+		// const STATE_MAP<NetworkState_Impl, double> results = pset_simulation->getLastStateDist();
+		const std::map<Node *, double> results = pset_simulation->getLastNodesDist();
+		const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
+		
+		displayFinalProba(*it, i, results, max_results);
 
 		i++;
 	}

@@ -47,7 +47,7 @@ class SamplingParameters {
     std::ostream& output;
 
     void displayHeader();
-    void displayFinalStates(std::map<std::string, double> parameter_set, int parameter_set_id, const STATE_MAP<NetworkState_Impl, double> results);
+    void displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results);
     std::vector<std::map<std::string, double>> generateCombinations(std::map<std::string, std::vector<double>> param_ranges);
 
 public:
