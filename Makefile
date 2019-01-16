@@ -52,4 +52,4 @@ test:
 	diff tests/expected_result result
 
 clean: 
-	rm -f MaBoSS-Sampling example ../lib/libmaboss.so ../include/*.h
+	rm -f MaBoSS-Sampling example $(MABOSS_LIB_DIR)/libmaboss.so $(MABOSS_INCLUDE_DIR)/include/*.h
