@@ -5,6 +5,7 @@
 #include <vector>
 #include <string.h>
 #include <map>
+#include <jsoncpp/json/json.h>
 
 #include "SamplingParameters.h"
 #include "RunConfig.h"
@@ -19,6 +20,7 @@ static int usage(std::ostream& os = std::cerr)
   os << "  " << prog << " [-h|--help]\n\n";
   os << "  " << prog << " -c|--config CONF_FILE [-p|--params '$p1, $p2'] [-v|--values '0.1, 1, 10'] [-o|--output RESULT_FILE] BOOLEAN_NETWORK_FILE\n\n";
   os << "  " << prog << " -c|--config CONF_FILE [-i|--input-ranges INPUT_RANGES_FILE] [-o|--output RESULT_FILE] BOOLEAN_NETWORK_FILE\n\n";
+  os << "  " << prog << " -c|--config CONF_FILE -s|--settings SETTINGS_FILE] [-o|--output RESULT_FILE] BOOLEAN_NETWORK_FILE\n\n";
   return 1;
 }
 
@@ -90,15 +92,58 @@ std::map<std::string, std::vector<double>> readParametersCSV(const char * ranges
 	return ranges;	
 }
 
+
+std::pair<std::vector<std::map<std::string, double> >, std::map<std::string, std::vector<double> > > readSettings(const char * settings_filename) {
+
+	std::vector<std::map<std::string, double> > conditions;
+	std::map<std::string, std::vector<double> > parameters;
+
+
+	std::ifstream settings_file(settings_filename);
+    Json::Reader reader;
+    Json::Value obj;
+
+	reader.parse(settings_file, obj);
+
+	for (const auto& cell_line: obj["cell_lines"]) {
+
+		std::map<std::string, double> res_condition;
+		
+		for (const auto& condition: cell_line["conditions"]) {
+			std::string parameter_name = condition["name"].asString();
+			double parameter_value = condition["value"].asDouble();
+
+			res_condition[parameter_name] = parameter_value;
+		}
+
+		conditions.push_back(res_condition);
+	}
+
+	for (const auto& optim_param: obj["parameters"]) {
+
+		std::string p_name = optim_param["name"].asString();
+		std::vector<double> values;
+		for (const auto& value:optim_param["values"]) {
+			values.push_back(value.asDouble());
+		}
+
+		parameters[p_name] = values;
+	}
+
+	settings_file.close();
+
+	return std::make_pair(conditions, parameters);
+}
+
 int main(int argc, const char * argv[])
 {
 	const char * config_file = NULL;
 	const char * network_file = NULL;
-	const char * parameters = NULL;
+	const char * parameters_filename = NULL;
 	const char * values = NULL;
 	const char * result_file = NULL;
 	const char * ranges_filename = NULL;
-	std::map<std::string, std::vector<double>> ranges;
+	const char * settings_filename = NULL;
 
 	for (int nn = 1; nn < argc; ++nn) {
 		const char* s = argv[nn];
@@ -123,7 +168,7 @@ int main(int argc, const char * argv[])
 				if (nn == argc-1) {
 					std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();
 				}
-				parameters = argv[++nn];
+				parameters_filename = argv[++nn];
 			
 			} else if (!strcmp(s, "-o") || !strcmp(s, "--output")) {
 				if (nn == argc-1) {
@@ -132,13 +177,19 @@ int main(int argc, const char * argv[])
 
 				result_file = argv[++nn];
 
+			} else if (!strcmp(s, "-s") || !strcmp(s, "--settings")) {
+				if (nn == argc-1) {
+					std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();
+				}
+
+				settings_filename = argv[++nn];
+
 			} else if (!strcmp(s, "-i") || !strcmp(s, "--input-ranges")) {
 				if (nn == argc-1) {
 					std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();
 				}
 
 				ranges_filename = argv[++nn];
-				ranges = readParametersCSV(ranges_filename);
 
 			} else if (!strcmp(s, "--help") || !strcmp(s, "-h")) {
 				return usage();
@@ -157,15 +208,31 @@ int main(int argc, const char * argv[])
 
 	if (config_file != NULL && network_file != NULL) 
 	{
+
+		std::map<std::string, std::vector<double> > parameters;
+		std::vector<std::map<std::string, double> > conditions;
+
 		try {
 			MaBEstEngine::init();
 	
-			if (ranges_filename == NULL) {
+			if (settings_filename != NULL) {
+				std::pair<
+					std::vector<std::map<std::string, double> >, 
+					std::map<std::string, std::vector<double> >
+				> settings = readSettings(settings_filename);
+
+				conditions = settings.first;
+				parameters = settings.second;
+
+			} else if (ranges_filename != NULL) {
+				parameters = readParametersCSV(ranges_filename);
+
+			} else {
 
 				// Getting the list of parameters
 				std::vector<std::string> param_names;
-				if (parameters != NULL){
-					param_names = readParameters(parameters);
+				if (parameters_filename != NULL){
+					param_names = readParameters(parameters_filename);
 				
 				} else {
 					// Loading the network
@@ -191,17 +258,17 @@ int main(int argc, const char * argv[])
 					param_values = {0.01, 0.1, 1};
 
 				for (auto& param_name: param_names)
-					ranges[param_name] = param_values;
+					parameters[param_name] = param_values;
 			}
 
 			if (result_file == NULL){
-				SamplingParameters * sampling = new SamplingParameters(network_file, config_file, ranges, std::cout);
+				SamplingParameters * sampling = new SamplingParameters(network_file, config_file, parameters, conditions, std::cout);
 				return sampling->run();
 			
 			} else {
 				std::ofstream output;
 				output.open(result_file, std::ofstream::out);
-				SamplingParameters * sampling = new SamplingParameters(network_file, config_file, ranges, output);
+				SamplingParameters * sampling = new SamplingParameters(network_file, config_file, parameters, conditions, output);
 				int res = sampling->run();
 				output.close();
 				return res;

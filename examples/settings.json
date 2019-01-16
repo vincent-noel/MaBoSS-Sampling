@@ -1,0 +1,34 @@
+{
+  "cell_lines" : [
+    {
+      "conditions": [
+        {
+          "name": "$Au",
+          "value": 1
+        }, {
+          "name": "$Ad",
+          "value": 1
+        }
+      ]
+    }, {
+      "conditions": [
+        {
+          "name": "$Au",
+          "value": 0
+        }, {
+          "name": "$Ad",
+          "value": 0
+        }
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "name": "$Bd",
+      "values": [0.1, 1, 10]
+    }, {
+      "name": "$Bu",
+      "values": [0, 1]
+    }
+  ]
+}

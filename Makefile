@@ -13,7 +13,7 @@ MABOSS_SRC_DIR = src/MaBoSS-env-2.0/engine/src
 MABOSS_INCLUDE_DIR = src/MaBoSS-env-2.0/engine/include
 MABOSS_LIB_DIR = src/MaBoSS-env-2.0/engine/lib
 
-all: clean sampling example
+all: clean MaBoSS-Sampling example
 
 maboss_lib: $(MABOSS_LIB_DIR)/libmaboss.so
 
@@ -33,8 +33,8 @@ PSetSimulation.o : $(SRC_DIR)/PSetSimulation.h $(SRC_DIR)/PSetSimulation.cc
 SamplingParameters.o : $(SRC_DIR)/SamplingParameters.h $(SRC_DIR)/SamplingParameters.cc
 	$(CC) $(FLAGS) -c $(SRC_DIR)/SamplingParameters.cc -I$(MABOSS_INCLUDE_DIR) -o SamplingParameters.o 
 
-sampling: main.o $(MABOSS_LIB_DIR)/libmaboss.so PSetSimulation.o SamplingParameters.o
-	$(CC) $(FLAGS) main.o PSetSimulation.o SamplingParameters.o $(MABOSS_LIB_DIR)/libmaboss.so -o MaBoSS-Sampling
+MaBoSS-Sampling: main.o $(MABOSS_LIB_DIR)/libmaboss.so PSetSimulation.o SamplingParameters.o
+	$(CC) $(FLAGS) main.o PSetSimulation.o SamplingParameters.o $(MABOSS_LIB_DIR)/libmaboss.so -ljsoncpp -o MaBoSS-Sampling
 	rm -f *.o
 
 # Example to show why we need to reparse network and config for each simulation
@@ -47,9 +47,11 @@ example: example.o $(MABOSS_LIB_DIR)/libmaboss.so
 
 # Test
 test:
-	make
+	make MaBoSS-Sampling
 	./MaBoSS-Sampling -c examples/Four_cycle.cfg -v '0, 1' examples/Four_cycle.bnd > result
 	diff tests/expected_result result
+	./MaBoSS-Sampling -c examples/Four_cycle.cfg -s examples/settings.json examples/Four_cycle.bnd > result
+	diff tests/expected_result_wsettings result
 
 clean: 
 	rm -f MaBoSS-Sampling example $(MABOSS_LIB_DIR)/libmaboss.so $(MABOSS_INCLUDE_DIR)/include/*.h
