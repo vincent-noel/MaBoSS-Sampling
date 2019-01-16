@@ -44,10 +44,14 @@ class SamplingParameters {
     std::map<std::string, std::vector<double>> param_ranges;
     std::vector<std::string> param_names;
 
+    std::vector<std::map<std::string, double> > conditions;
+
     std::ostream& output;
 
     void displayHeader();
+    void displayHeaderWithCondition();
     void displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results);
+    void displayFinalProbaWithCondition(std::map<std::string, double> parameter_set, int condition_id, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results);
     std::vector<std::map<std::string, double>> generateCombinations(std::map<std::string, std::vector<double>> param_ranges);
 
 public:
@@ -76,6 +80,33 @@ public:
 	        	param_names.push_back(pair.first);
 	        
         };
+
+    SamplingParameters(const char * network_file, const char * config_file, std::map<std::string, std::vector<double>> param_ranges, std::vector<std::map<std::string, double> > conditions, std::ostream& output) :
+        network_file(network_file), config_file(config_file), param_ranges(param_ranges), output(output), conditions(conditions) {
+        
+        	MaBEstEngine::init();
+    
+            // Resetting old network variables
+            // Probably should be done while we parse the network ?
+            IStateGroup::reset();
+            NodeDecl::reset();
+
+            // Loading the network
+            network = new Network();
+            network->parse(network_file);
+
+            // Loading the config
+            RunConfig * config = RunConfig::getInstance();
+            config->parse(network, config_file);
+
+            IStateGroup::checkAndComplete(network);
+            
+            for (const auto& pair : param_ranges)
+	        	param_names.push_back(pair.first);
+	        
+        };
+
+
 
     ~SamplingParameters();
 

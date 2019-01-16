@@ -59,11 +59,60 @@ void SamplingParameters::displayHeader() {
 
 }
 
+void SamplingParameters::displayHeaderWithCondition() {
+	
+	output << "Condition Id\tParameterSet Id\t";
+
+	const std::vector<Node*>& nodes = network->getNodes();
+
+	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
+		output << (*it)->getLabel() << "\t";
+	}
+
+	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
+		output << "max(" << (*it)->getLabel() << ")\t";
+	}
+
+	for (std::vector<std::string>::const_iterator it = param_names.begin(); it != param_names.end(); it++) {
+		output << *it;
+
+		if (std::next(it) != param_names.end()) 
+			output << "\t";
+	}
+
+	output << "\n";
+
+}
+
 void SamplingParameters::displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results) {
 
 	const std::vector<Node*>& nodes = network->getNodes();
 
 	output << parameter_set_id << "\t";
+
+	for (auto const& result : results)
+		output << result.second << "\t";
+	
+	for (auto const& max_result : max_results)
+		output << max_result.second << "\t";
+		
+	for (std::map<std::string, double>::const_iterator it = parameter_set.begin(); it != parameter_set.end(); it++) {
+		output << it->second;
+
+		if (std::next(it) != parameter_set.end()) {
+			output << "\t";
+		}
+	}
+
+	output << std::endl;
+} 
+
+
+void SamplingParameters::displayFinalProbaWithCondition(std::map<std::string, double> parameter_set, int condition_id, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results) {
+
+	const std::vector<Node*>& nodes = network->getNodes();
+
+	output << condition_id << "\t" << parameter_set_id << "\t";
 
 	for (auto const& result : results)
 		output << result.second << "\t";
@@ -141,21 +190,54 @@ int SamplingParameters::run()
 
 	std::vector<std::map<std::string, double>> parameter_sets = generateCombinations(param_ranges);
 
-	displayHeader();
+	if (conditions.size() > 0) {
+		displayHeaderWithCondition();
 
-	// Sampling the parameter values for all parameters
-	int i=0;
-	for (std::vector<std::map<std::string, double>>::const_iterator it = parameter_sets.begin(); it != parameter_sets.end(); it++){
-		// simulateParameterSet(network_file, config_file, *it, i, output);
-		PSetSimulation * pset_simulation = new PSetSimulation(network_file, config_file, *it);
-		pset_simulation->run();
-		// const STATE_MAP<NetworkState_Impl, double> results = pset_simulation->getLastStateDist();
-		const std::map<Node *, double> results = pset_simulation->getLastNodesDist();
-		const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
+		int c=0;
+		for (const auto& condition: conditions) {
 		
-		displayFinalProba(*it, i, results, max_results);
+			// Sampling the parameter values for all parameters
+			int i=0;
+			for (std::vector<std::map<std::string, double>>::const_iterator it = parameter_sets.begin(); it != parameter_sets.end(); it++){
 
-		i++;
+				std::map<std::string, double> pset = *it;
+
+				for (const auto& initial_value: condition) {
+					pset[initial_value.first] = initial_value.second;
+				}
+
+				PSetSimulation * pset_simulation = new PSetSimulation(network_file, config_file, pset);
+				pset_simulation->run();
+
+				const std::map<Node *, double> results = pset_simulation->getLastNodesDist();
+				const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
+				
+				displayFinalProbaWithCondition(*it, c, i, results, max_results);
+
+				i++;
+			}
+
+			c++;
+		}
+
+	} else {
+
+		displayHeader();
+
+		// Sampling the parameter values for all parameters
+		int i=0;
+		for (std::vector<std::map<std::string, double>>::const_iterator it = parameter_sets.begin(); it != parameter_sets.end(); it++){
+
+			PSetSimulation * pset_simulation = new PSetSimulation(network_file, config_file, *it);
+			pset_simulation->run();
+
+			const std::map<Node *, double> results = pset_simulation->getLastNodesDist();
+			const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
+			
+			displayFinalProba(*it, i, results, max_results);
+
+			i++;
+		}
 	}
 
 	return 0;
