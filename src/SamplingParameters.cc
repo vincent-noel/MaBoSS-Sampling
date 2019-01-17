@@ -213,7 +213,7 @@ int SamplingParameters::run()
 				const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
 				
 				displayFinalProbaWithCondition(*it, c, i, results, max_results);
-
+				delete pset_simulation;
 				i++;
 			}
 
@@ -235,7 +235,7 @@ int SamplingParameters::run()
 			const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
 			
 			displayFinalProba(*it, i, results, max_results);
-
+			delete pset_simulation;
 			i++;
 		}
 	}
