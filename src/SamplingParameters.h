@@ -33,6 +33,7 @@
 #include "BooleanNetwork.h"
 #include "BooleanGrammar.h"
 #include "MaBEstEngine.h"
+#include "PSetSimulation.h"
 
 class SamplingParameters {
 
@@ -50,8 +51,8 @@ class SamplingParameters {
 
     void displayHeader();
     void displayHeaderWithCondition();
-    void displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results);
-    void displayFinalProbaWithCondition(std::map<std::string, double> parameter_set, int condition_id, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results);
+    void displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results, PSetSimulation*);
+    void displayFinalProbaWithCondition(std::map<std::string, double> parameter_set, int condition_id, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results, PSetSimulation*);
     std::vector<std::map<std::string, double>> generateCombinations(std::map<std::string, std::vector<double>> param_ranges);
 
 public:

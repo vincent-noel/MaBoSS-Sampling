@@ -32,7 +32,6 @@
 #include <vector>
 
 #include "SamplingParameters.h"
-#include "PSetSimulation.h"
 
 void SamplingParameters::displayHeader() {
 	
@@ -84,17 +83,21 @@ void SamplingParameters::displayHeaderWithCondition() {
 
 }
 
-void SamplingParameters::displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results) {
+void SamplingParameters::displayFinalProba(std::map<std::string, double> parameter_set, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results, PSetSimulation * simulation) {
 
-	const std::vector<Node*>& nodes = network->getNodes();
+	const std::vector<Node*>& nodes = simulation->getNodes();
 
 	output << parameter_set_id << "\t";
 
-	for (auto const& result : results)
-		output << result.second << "\t";
+	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
+		output << results.at(*it) << "\t";
+
+	}
 	
-	for (auto const& max_result : max_results)
-		output << max_result.second << "\t";
+	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
+		output << max_results.at(*it) << "\t";
+
+	}
 		
 	for (std::map<std::string, double>::const_iterator it = parameter_set.begin(); it != parameter_set.end(); it++) {
 		output << it->second;
@@ -108,18 +111,20 @@ void SamplingParameters::displayFinalProba(std::map<std::string, double> paramet
 } 
 
 
-void SamplingParameters::displayFinalProbaWithCondition(std::map<std::string, double> parameter_set, int condition_id, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results) {
+void SamplingParameters::displayFinalProbaWithCondition(std::map<std::string, double> parameter_set, int condition_id, int parameter_set_id, const std::map<Node *, double> results, const std::map<Node *, double> max_results, PSetSimulation * simulation) {
 
-	const std::vector<Node*>& nodes = network->getNodes();
+	const std::vector<Node*>& nodes = simulation->getNodes();
 
 	output << condition_id << "\t" << parameter_set_id << "\t";
 
-	for (auto const& result : results)
-		output << result.second << "\t";
+	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
+		output << results.at(*it) << "\t";
+	}
 	
-	for (auto const& max_result : max_results)
-		output << max_result.second << "\t";
-		
+	for (std::vector<Node*>::const_iterator it = nodes.begin(); it != nodes.end(); it++) {
+		output << max_results.at(*it) << "\t";
+	}
+
 	for (std::map<std::string, double>::const_iterator it = parameter_set.begin(); it != parameter_set.end(); it++) {
 		output << it->second;
 
@@ -212,7 +217,7 @@ int SamplingParameters::run()
 				const std::map<Node *, double> results = pset_simulation->getLastNodesDist();
 				const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
 				
-				displayFinalProbaWithCondition(*it, c, i, results, max_results);
+				displayFinalProbaWithCondition(*it, c, i, results, max_results, pset_simulation);
 				delete pset_simulation;
 				i++;
 			}
@@ -234,7 +239,7 @@ int SamplingParameters::run()
 			const std::map<Node *, double> results = pset_simulation->getLastNodesDist();
 			const std::map<Node *, double> max_results = pset_simulation->getMaxNodesDist();
 			
-			displayFinalProba(*it, i, results, max_results);
+			displayFinalProba(*it, i, results, max_results, pset_simulation);
 			delete pset_simulation;
 			i++;
 		}
