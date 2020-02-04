@@ -32,6 +32,7 @@
 
 #include "BooleanNetwork.h"
 #include "BooleanGrammar.h"
+#include "RunConfig.h"
 #include "MaBEstEngine.h"
 #include "PSetSimulation.h"
 
@@ -64,15 +65,15 @@ public:
     
             // Resetting old network variables
             // Probably should be done while we parse the network ?
-            IStateGroup::reset();
-            NodeDecl::reset();
+            // IStateGroup::reset();
+            // NodeDecl::reset();
 
             // Loading the network
             network = new Network();
             network->parse(network_file);
 
             // Loading the config
-            RunConfig * config = RunConfig::getInstance();
+            RunConfig * config = new RunConfig();
             config->parse(network, config_file);
 
             IStateGroup::checkAndComplete(network);
@@ -89,15 +90,15 @@ public:
     
             // Resetting old network variables
             // Probably should be done while we parse the network ?
-            IStateGroup::reset();
-            NodeDecl::reset();
+            // IStateGroup::reset();
+            // NodeDecl::reset();
 
             // Loading the network
             network = new Network();
             network->parse(network_file);
 
             // Loading the config
-            RunConfig * config = RunConfig::getInstance();
+            RunConfig * config = new RunConfig();
             config->parse(network, config_file);
 
             IStateGroup::checkAndComplete(network);

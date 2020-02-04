@@ -51,13 +51,13 @@ public:
 
     // Resetting old network variables
     // Probably should be done while we parse the network ?
-    IStateGroup::reset();
-    NodeDecl::reset();
+    // IStateGroup::reset();
+    // Network::reset();
 
 		network = new Network();
 		network->parse(network_filename);
 
-		config = RunConfig::getInstance();
+		config = new RunConfig();
 		config->parse(network, config_filename);
 
     IStateGroup::checkAndComplete(network);
@@ -66,6 +66,7 @@ public:
 
 	~PSetSimulation() {
     delete simulation;
+    delete config;
 		delete network;
 	};
 

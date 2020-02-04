@@ -240,13 +240,13 @@ int main(int argc, const char * argv[])
 					network->parse(network_file);
 
 					// Loading the config
-					RunConfig * config = RunConfig::getInstance();
+					RunConfig * config = new RunConfig();
 					config->parse(network, config_file);
 
 					IStateGroup::checkAndComplete(network);
 
 					// Getting the list of parameters
-					SymbolTable* listOfParameters =	SymbolTable::getInstance();
+					SymbolTable* listOfParameters =	network->getSymbolTable();
 					param_names = listOfParameters->getSymbolsNames();
 				}
 

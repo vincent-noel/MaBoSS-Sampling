@@ -32,7 +32,7 @@
 void PSetSimulation::run() {
 
 	// Getting list of parameters 
-	SymbolTable* listOfParameters = SymbolTable::getInstance();
+	SymbolTable* listOfParameters = network->getSymbolTable();
     
 	// Using parameter set
 	for (auto const & parameter : parameter_set) {

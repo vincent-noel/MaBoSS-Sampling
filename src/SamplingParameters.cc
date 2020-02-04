@@ -13,7 +13,7 @@
    Lesser General Public License for more details.
    
    You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
+   License along wSymbolTable::getInstance()ith this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA 
 */
 
@@ -180,15 +180,15 @@ int SamplingParameters::run()
 	MaBEstEngine::init();
 	// Resetting old network variables
 	// Probably should be done while we parse the network ?
-	IStateGroup::reset();
-	NodeDecl::reset();
+	// IStateGroup::reset();
+	// NodeDecl::reset();
 
 	// Loading the network
 	Network * network = new Network();
 	network->parse(network_file);
 
 	// Loading the config
-	RunConfig * config = RunConfig::getInstance();
+	RunConfig * config = new RunConfig();
 	config->parse(network, config_file);
 
     IStateGroup::checkAndComplete(network);
