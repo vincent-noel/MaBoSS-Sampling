@@ -9,3 +9,4 @@ install:
 
 script:
 - make test
+- make test_128n
