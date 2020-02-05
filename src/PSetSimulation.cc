@@ -37,6 +37,7 @@ void PSetSimulation::run() {
 	// Using parameter set
 	for (auto const & parameter : parameter_set) {
 
+    // Parameter
     if (parameter.first.rfind("$", 0) == 0){
       const Symbol * param = listOfParameters->getSymbol(parameter.first);
 
@@ -45,6 +46,8 @@ void PSetSimulation::run() {
 
       listOfParameters->setSymbolValue(param, parameter.second);
     }
+
+    // Initial values
     else {
       Node * node = network->getNode(parameter.first);
       IStateGroup::setNodeProba(network, node, parameter.second); 

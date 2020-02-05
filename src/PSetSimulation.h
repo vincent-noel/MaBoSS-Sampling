@@ -49,11 +49,6 @@ public:
 	PSetSimulation(const char * network_filename, const char * config_filename, std::map<std::string, double> parameter_set) : 
     parameter_set(parameter_set) {
 
-    // Resetting old network variables
-    // Probably should be done while we parse the network ?
-    // IStateGroup::reset();
-    // Network::reset();
-
 		network = new Network();
 		network->parse(network_filename);
 
@@ -61,7 +56,6 @@ public:
 		config->parse(network, config_filename);
 
     IStateGroup::checkAndComplete(network);
-
 	}
 
 	~PSetSimulation() {

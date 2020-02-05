@@ -62,11 +62,6 @@ public:
         network_file(network_file), config_file(config_file), param_ranges(param_ranges), output(output) {
         
         	MaBEstEngine::init();
-    
-            // Resetting old network variables
-            // Probably should be done while we parse the network ?
-            // IStateGroup::reset();
-            // NodeDecl::reset();
 
             // Loading the network
             network = new Network();
@@ -88,11 +83,6 @@ public:
         
         	MaBEstEngine::init();
     
-            // Resetting old network variables
-            // Probably should be done while we parse the network ?
-            // IStateGroup::reset();
-            // NodeDecl::reset();
-
             // Loading the network
             network = new Network();
             network->parse(network_file);

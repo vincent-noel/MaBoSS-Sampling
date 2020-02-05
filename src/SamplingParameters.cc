@@ -177,12 +177,6 @@ std::vector<std::map<std::string, double>> SamplingParameters::generateCombinati
 
 int SamplingParameters::run()
 {
-	MaBEstEngine::init();
-	// Resetting old network variables
-	// Probably should be done while we parse the network ?
-	// IStateGroup::reset();
-	// NodeDecl::reset();
-
 	// Loading the network
 	Network * network = new Network();
 	network->parse(network_file);
