@@ -1,0 +1,28 @@
+name: Ubuntu 18.04
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test_maboss:
+    name: MaBoSS-Sampling
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get install flex bison libjsoncpp-dev
+        
+    - name: Build MaBoSS-Sampling
+      run: |
+        make
+    
+    - name: Test MaBoSS-Sampling
+      run: |
+        make test
+        make test_128n

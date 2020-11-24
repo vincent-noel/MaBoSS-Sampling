@@ -1,4 +1,5 @@
-# MaBoSS-Sampling [![Build Status](https://travis-ci.org/vincent-noel/MaBoSS-Sampling.svg?branch=master)](https://travis-ci.org/vincent-noel/MaBoSS-Sampling)
+# MaBoSS-Sampling ![Ubuntu 18.04](https://github.com/vincent-noel/MaBoSS-Sampling/workflows/Ubuntu%2018.04/badge.svg)
+
 Parameter sampling for MaBoSS models
 
 ## Compiling
